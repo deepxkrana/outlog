@@ -5,10 +5,9 @@ if [ "$1" = "configure" ]; then
     echo "======================================================"
     echo " Outlog installed successfully!"
     echo ""
-    echo " To enable automatic background recording in your"
-    echo " terminal sessions, run the following command as"
-    echo " your normal user:"
-    echo "     outlog enable"
+    echo " The background supervisor is now installed globally."
+    echo " All new interactive terminal sessions will be"
+    echo " automatically recorded."
     echo "======================================================"
 fi
 

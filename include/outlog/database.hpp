@@ -30,7 +30,13 @@ public:
 
     bool initialize();
     bool insert_record(const ExecutionRecord& record);
+    // Print the most recent `count` executions
     void print_recent(int count);
+
+    // Print all executions, optionally with full details
+    void print_all(bool details = false);
+
+    // Print full details for a specific record
     void print_record(int id);
     void search(const std::string& query);
     void delete_record(int id);

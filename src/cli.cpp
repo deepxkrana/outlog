@@ -266,7 +266,7 @@ int parse_and_run(int argc, char* argv[], outlog::db::Database& db) {
     } else if (opt_n->count() > 0) {
         db.print_recent(last_n);
     } else if (app.get_subcommands().empty()) {
-        db.print_recent(10);
+        db.print_all(details);
     } else {
         std::cout << "Command parsed successfully but not implemented yet.\n";
     }

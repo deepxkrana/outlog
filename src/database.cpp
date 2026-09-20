@@ -81,6 +81,50 @@ bool Database::insert_record(const ExecutionRecord& record) {
     return success;
 }
 
+void Database::print_all(bool details) {
+    const char* sql = details ? "SELECT id, command, started_at, exit_code, duration_ms, stdout, stderr FROM executions ORDER BY id ASC;" 
+                              : "SELECT id, command, started_at, exit_code, duration_ms FROM executions ORDER BY id ASC;";
+    sqlite3_stmt* stmt;
+    if (sqlite3_prepare_v2(db_, sql, -1, &stmt, nullptr) != SQLITE_OK) {
+        std::cerr << "Failed to prepare query: " << sqlite3_errmsg(db_) << std::endl;
+        return;
+    }
+
+    std::cout << "All recorded commands:\n";
+    std::cout << "ID\tExit\tTime\t\t\tDuration(ms)\tCommand\n";
+    std::cout << "--------------------------------------------------------------------------\n";
+
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        int id = sqlite3_column_int(stmt, 0);
+        const unsigned char* cmd = sqlite3_column_text(stmt, 1);
+        const unsigned char* started = sqlite3_column_text(stmt, 2);
+        int exit_code = sqlite3_column_int(stmt, 3);
+        int duration = sqlite3_column_int(stmt, 4);
+
+        std::cout << id << "\t" << exit_code << "\t" << (started ? (const char*)started : "") 
+                  << "\t" << duration << "\t\t" << (cmd ? (const char*)cmd : "") << "\n";
+                  
+        if (details) {
+            const unsigned char* out = sqlite3_column_text(stmt, 5);
+            const unsigned char* err = sqlite3_column_text(stmt, 6);
+            if (out && out[0] != '\0') {
+                std::cout << "--- STDOUT ---\n" << (const char*)out;
+                // Add a newline if stdout doesn't end with one
+                std::string out_str((const char*)out);
+                if (!out_str.empty() && out_str.back() != '\n') std::cout << "\n";
+            }
+            if (err && err[0] != '\0') {
+                std::cout << "--- STDERR ---\n" << (const char*)err;
+                std::string err_str((const char*)err);
+                if (!err_str.empty() && err_str.back() != '\n') std::cout << "\n";
+            }
+            std::cout << "--------------------------------------------------------------------------\n";
+        }
+    }
+
+    sqlite3_finalize(stmt);
+}
+
 void Database::print_recent(int count) {
     const char* sql = "SELECT id, command, started_at, exit_code, duration_ms FROM executions ORDER BY id DESC LIMIT ?;";
     sqlite3_stmt* stmt;

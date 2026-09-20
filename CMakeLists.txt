@@ -38,6 +38,7 @@ target_link_libraries(outlog PRIVATE SQLite3::SQLite3 CLI11::CLI11)
 include(GNUInstallDirs)
 install(TARGETS outlog DESTINATION ${CMAKE_INSTALL_BINDIR})
 install(FILES scripts/bash-integration.sh DESTINATION ${CMAKE_INSTALL_DATADIR}/outlog)
+install(FILES scripts/outlog.sh DESTINATION /etc/profile.d)
 
 # Testing
 enable_testing()
