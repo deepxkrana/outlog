@@ -1,0 +1,44 @@
+[
+{
+  "directory": "/Users/deepakrana/Desktop/outlog/build",
+  "command": "/usr/bin/c++  -I/Users/deepakrana/Desktop/outlog/include -isystem /Users/deepakrana/Desktop/outlog/build/_deps/cli11-src/include -O3 -DNDEBUG -std=gnu++17 -o CMakeFiles/outlog.dir/src/main.cpp.o -c /Users/deepakrana/Desktop/outlog/src/main.cpp",
+  "file": "/Users/deepakrana/Desktop/outlog/src/main.cpp",
+  "output": "CMakeFiles/outlog.dir/src/main.cpp.o"
+},
+{
+  "directory": "/Users/deepakrana/Desktop/outlog/build",
+  "command": "/usr/bin/c++  -I/Users/deepakrana/Desktop/outlog/include -isystem /Users/deepakrana/Desktop/outlog/build/_deps/cli11-src/include -O3 -DNDEBUG -std=gnu++17 -o CMakeFiles/outlog.dir/src/cli.cpp.o -c /Users/deepakrana/Desktop/outlog/src/cli.cpp",
+  "file": "/Users/deepakrana/Desktop/outlog/src/cli.cpp",
+  "output": "CMakeFiles/outlog.dir/src/cli.cpp.o"
+},
+{
+  "directory": "/Users/deepakrana/Desktop/outlog/build",
+  "command": "/usr/bin/c++  -I/Users/deepakrana/Desktop/outlog/include -isystem /Users/deepakrana/Desktop/outlog/build/_deps/cli11-src/include -O3 -DNDEBUG -std=gnu++17 -o CMakeFiles/outlog.dir/src/database.cpp.o -c /Users/deepakrana/Desktop/outlog/src/database.cpp",
+  "file": "/Users/deepakrana/Desktop/outlog/src/database.cpp",
+  "output": "CMakeFiles/outlog.dir/src/database.cpp.o"
+},
+{
+  "directory": "/Users/deepakrana/Desktop/outlog/build",
+  "command": "/usr/bin/c++  -I/Users/deepakrana/Desktop/outlog/include -isystem /Users/deepakrana/Desktop/outlog/build/_deps/cli11-src/include -O3 -DNDEBUG -std=gnu++17 -o CMakeFiles/outlog.dir/src/process_manager.cpp.o -c /Users/deepakrana/Desktop/outlog/src/process_manager.cpp",
+  "file": "/Users/deepakrana/Desktop/outlog/src/process_manager.cpp",
+  "output": "CMakeFiles/outlog.dir/src/process_manager.cpp.o"
+},
+{
+  "directory": "/Users/deepakrana/Desktop/outlog/build",
+  "command": "/usr/bin/c++  -I/Users/deepakrana/Desktop/outlog/include -isystem /Users/deepakrana/Desktop/outlog/build/_deps/cli11-src/include -O3 -DNDEBUG -std=gnu++17 -o CMakeFiles/outlog.dir/src/pty_session.cpp.o -c /Users/deepakrana/Desktop/outlog/src/pty_session.cpp",
+  "file": "/Users/deepakrana/Desktop/outlog/src/pty_session.cpp",
+  "output": "CMakeFiles/outlog.dir/src/pty_session.cpp.o"
+},
+{
+  "directory": "/Users/deepakrana/Desktop/outlog/build",
+  "command": "/usr/bin/c++  -I/Users/deepakrana/Desktop/outlog/include -O3 -DNDEBUG -std=gnu++17 -o CMakeFiles/test_database.dir/tests/test_database.cpp.o -c /Users/deepakrana/Desktop/outlog/tests/test_database.cpp",
+  "file": "/Users/deepakrana/Desktop/outlog/tests/test_database.cpp",
+  "output": "CMakeFiles/test_database.dir/tests/test_database.cpp.o"
+},
+{
+  "directory": "/Users/deepakrana/Desktop/outlog/build",
+  "command": "/usr/bin/c++  -I/Users/deepakrana/Desktop/outlog/include -O3 -DNDEBUG -std=gnu++17 -o CMakeFiles/test_database.dir/src/database.cpp.o -c /Users/deepakrana/Desktop/outlog/src/database.cpp",
+  "file": "/Users/deepakrana/Desktop/outlog/src/database.cpp",
+  "output": "CMakeFiles/test_database.dir/src/database.cpp.o"
+}
+]

@@ -1,0 +1,10 @@
+{
+	"InstallScripts" : 
+	[
+		"/Users/deepakrana/Desktop/outlog/build/cmake_install.cmake",
+		"/Users/deepakrana/Desktop/outlog/build/_deps/cli11-build/cmake_install.cmake",
+		"/Users/deepakrana/Desktop/outlog/build/_deps/cli11-build/fuzz/cmake_install.cmake",
+		"/Users/deepakrana/Desktop/outlog/build/_deps/cli11-build/src/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

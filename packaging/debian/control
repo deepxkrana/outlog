@@ -1,0 +1,15 @@
+Source: outlog
+Section: utils
+Priority: optional
+Maintainer: Deepak Rana <deepak@example.com>
+Build-Depends: debhelper-compat (= 13), cmake, libsqlite3-dev
+Standards-Version: 4.5.0
+Homepage: https://github.com/example/outlog
+
+Package: outlog
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, sqlite3
+Description: Command-line execution logger
+ Outlog is a shell supervisor and command wrapper that automatically
+ captures and logs every command executed in the terminal into a
+ local SQLite database for searching and auditing.

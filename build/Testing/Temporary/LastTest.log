@@ -1,0 +1,20 @@
+Start testing: Sep 20 21:06 IST
+----------------------------------------------------------
+1/1 Testing: DatabaseTest
+1/1 Test: DatabaseTest
+Command: "/Users/deepakrana/Desktop/outlog/build/test_database"
+Directory: /Users/deepakrana/Desktop/outlog/build
+"DatabaseTest" start time: Sep 20 21:06 IST
+Output:
+----------------------------------------------------------
+Running Database Tests...
+All Database Tests Passed!
+<end of output>
+Test time =   0.41 sec
+----------------------------------------------------------
+Test Passed.
+"DatabaseTest" end time: Sep 20 21:06 IST
+"DatabaseTest" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Sep 20 21:06 IST

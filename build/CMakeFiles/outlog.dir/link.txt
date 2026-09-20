@@ -1,0 +1,1 @@
+/usr/bin/c++ -O3 -DNDEBUG -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/outlog.dir/src/main.cpp.o CMakeFiles/outlog.dir/src/cli.cpp.o CMakeFiles/outlog.dir/src/database.cpp.o CMakeFiles/outlog.dir/src/process_manager.cpp.o CMakeFiles/outlog.dir/src/pty_session.cpp.o -o outlog  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib/libsqlite3.tbd
