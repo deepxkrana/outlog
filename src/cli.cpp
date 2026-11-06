@@ -44,10 +44,13 @@ std::string get_config_dir() {
     return std::string(home) + "/.config/outlog";
 }
 
+// Recording is on by default. The `disabled` file records a user's opt-out and
+// is checked by the login-shell script; the `enabled` file guards the block
+// that `outlog enable` adds to ~/.bashrc for non-login terminals.
 bool is_enabled() {
-    std::string enabled_file = get_config_dir() + "/enabled";
+    std::string disabled_file = get_config_dir() + "/disabled";
     struct stat st;
-    return stat(enabled_file.c_str(), &st) == 0;
+    return stat(disabled_file.c_str(), &st) != 0;
 }
 
 void enable_outlog() {
@@ -56,11 +59,13 @@ void enable_outlog() {
     std::string config_base = std::string(getenv("HOME")) + "/.config";
     mkdir(config_base.c_str(), 0755);
     mkdir(config_dir.c_str(), 0755);
+    std::string disabled_file = config_dir + "/disabled";
+    unlink(disabled_file.c_str());
     std::string enabled_file = config_dir + "/enabled";
     std::ofstream f(enabled_file);
     f << "1\n";
     f.close();
-    
+
     std::string bashrc = std::string(getenv("HOME")) + "/.bashrc";
     std::ifstream in(bashrc);
     std::string content((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
@@ -87,9 +92,20 @@ void enable_outlog() {
 }
 
 void disable_outlog() {
-    std::string enabled_file = get_config_dir() + "/enabled";
+    std::string config_dir = get_config_dir();
+    std::string config_base = std::string(getenv("HOME")) + "/.config";
+    mkdir(config_base.c_str(), 0755);
+    mkdir(config_dir.c_str(), 0755);
+    std::string enabled_file = config_dir + "/enabled";
     unlink(enabled_file.c_str());
-    std::cout << "outlog is now DISABLED.\n";
+    std::string disabled_file = config_dir + "/disabled";
+    std::ofstream f(disabled_file);
+    f << "1\n";
+    if (!f.flush()) {
+        std::cerr << "Failed to write " << disabled_file << ". outlog may still auto-start.\n";
+        return;
+    }
+    std::cout << "outlog is now DISABLED for new terminals.\n";
 }
 
 bool is_paused() {

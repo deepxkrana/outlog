@@ -34,7 +34,7 @@ After installation:
 sudo apt install outlog
 ```
 
-the user gives permission to enable automatic recording. After that, when the user opens a terminal, `outlog` starts automatically and works invisibly in the background of the shell session.
+automatic recording is on by default, and any user can turn it off with `outlog disable`. When the user opens a login terminal, `outlog` starts automatically and works invisibly in the background of the shell session. `outlog enable` extends this to non-login terminals.
 
 The user continues using the terminal normally:
 
@@ -161,26 +161,23 @@ The user runs:
 sudo apt install outlog
 ```
 
-During installation, the package may ask:
+Installation does not ask for permission. Recording is on by default for all users, and the installer states this clearly along with how to turn it off.
 
-```text
-Enable automatic command and output recording for this user? [Y/n]
-```
+After installation:
 
-If the user chooses yes:
-
-- The automatic Bash integration is enabled.
-- Future interactive Bash sessions start through `outlog`.
+- Future interactive Bash login shells start through `outlog`.
 - The user does not need to manually start recording.
 - The user continues to see a normal shell prompt.
 
-If the user chooses no:
+Non-login terminals, which include most Linux desktop terminal windows, do not read `/etc/profile.d`. They are recorded only after the user runs `outlog enable`, which adds a block to `~/.bashrc`.
+
+If a user runs `outlog disable`:
 
 - `outlog` is still installed.
-- Automatic recording is disabled.
-- The user can enable it later.
+- New terminals for that user are not recorded, whether login or non-login.
+- The user can turn recording back on later with `outlog enable`.
 
-Example future commands:
+Commands:
 
 ```bash
 outlog enable
@@ -1403,7 +1400,7 @@ Create a `.deb` package that installs:
 /usr/share/outlog/
 ```
 
-The package should configure automatic Bash integration only after user consent.
+The package should enable automatic recording for Bash login shells by default, tell the user during installation, and let each user opt out with `outlog disable`.
 
 ### Phase 8: Testing and documentation
 
@@ -1469,23 +1466,14 @@ The database should be stored in the user’s home directory:
 
 ### Package installation behavior
 
-The package may ask:
+The package installs `/etc/profile.d/outlog.sh`, which starts `outlog` for interactive Bash login shells unless that user has run `outlog disable`.
 
-```text
-Enable automatic Bash recording? [Y/n]
-```
+The package should:
 
-If yes:
-
-- Enable the Bash integration.
-- Preserve existing shell configuration.
-- Avoid duplicate entries.
-- Provide a disable command.
-
-If no:
-
-- Install the binary.
-- Leave automatic recording disabled.
+- Tell the user that recording is on by default, including that recorded output can contain secrets.
+- Explain how to opt out and how to cover non-login terminals.
+- Leave users' existing shell configuration unchanged. Only `outlog enable`, run by the user, edits `~/.bashrc`, and it must avoid duplicate entries.
+- Leave shell configuration files owned by other packages unchanged, such as `/etc/bash.bashrc`.
 
 ### Package removal behavior
 
@@ -1866,9 +1854,9 @@ The intended experience is:
 ```text
 sudo apt install outlog
         ↓
-User grants permission
+Installer states that recording is on by default
         ↓
-User opens a terminal normally
+User opens a login terminal normally
         ↓
 outlog starts automatically
         ↓

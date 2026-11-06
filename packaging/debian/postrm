@@ -5,9 +5,9 @@ if [ "$1" = "purge" ]; then
     echo "======================================================"
     echo " Outlog purged."
     echo " Note: User SQLite databases and configuration files"
-    echo " in ~/.config/outlog and ~/.outlog.db have been left"
-    echo " intact to prevent accidental data loss. You may"
-    echo " delete them manually."
+    echo " in ~/.config/outlog and ~/.local/share/outlog have"
+    echo " been left intact to prevent accidental data loss."
+    echo " You may delete them manually."
     echo "======================================================"
 fi
 

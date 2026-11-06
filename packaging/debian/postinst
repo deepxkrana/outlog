@@ -5,9 +5,12 @@ if [ "$1" = "configure" ]; then
     echo "======================================================"
     echo " Outlog installed successfully!"
     echo ""
-    echo " The background supervisor is now installed globally."
-    echo " All new interactive terminal sessions will be"
-    echo " automatically recorded."
+    echo " Recording is ON by default for all users. Commands"
+    echo " and their output are saved locally in new interactive"
+    echo " Bash login shells, including any secrets they show."
+    echo ""
+    echo " To stop recording your account:  outlog disable"
+    echo " To also record non-login terminals:  outlog enable"
     echo "======================================================"
 fi
 
