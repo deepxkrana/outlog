@@ -34,6 +34,11 @@ add_executable(outlog ${SOURCES})
 # Link SQLite3 and CLI11
 target_link_libraries(outlog PRIVATE SQLite3::SQLite3 CLI11::CLI11)
 
+# forkpty lives in libutil on Linux
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    target_link_libraries(outlog PRIVATE util)
+endif()
+
 # Installation targets for Debian packaging
 include(GNUInstallDirs)
 install(TARGETS outlog DESTINATION ${CMAKE_INSTALL_BINDIR})

@@ -2,16 +2,73 @@
 #include <iostream>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <cerrno>
+#include <climits>
+#include <cstdlib>
 #include <cstring>
+#include <filesystem>
 #include <fstream>
 #include <poll.h>
 #include <termios.h>
 #include <sys/ioctl.h>
 #include <signal.h>
+#if defined(__APPLE__)
+#include <mach-o/dyld.h>
 #include <util.h> // For forkpty on macOS
+#else
+#include <pty.h> // For forkpty on Linux
+#endif
 
 namespace outlog {
 namespace pty {
+
+std::string executable_path() {
+    char raw[PATH_MAX];
+#if defined(__APPLE__)
+    uint32_t size = sizeof(raw);
+    if (_NSGetExecutablePath(raw, &size) != 0) {
+        return "";
+    }
+#else
+    ssize_t len = readlink("/proc/self/exe", raw, sizeof(raw) - 1);
+    if (len < 0) {
+        return "";
+    }
+    raw[len] = '\0';
+#endif
+    char resolved[PATH_MAX];
+    return realpath(raw, resolved) ? std::string(resolved) : "";
+}
+
+std::string shell_quote(const std::string& value) {
+    std::string quoted = "'";
+    for (char c : value) {
+        if (c == '\'') {
+            quoted += "'\\''";
+        } else {
+            quoted += c;
+        }
+    }
+    return quoted + "'";
+}
+
+// Looks next to the binary, covering both an installed layout
+// (<prefix>/bin/outlog) and a development build (<repo>/build/outlog).
+static std::string find_integration_script() {
+    const std::string exe = executable_path();
+    if (exe.empty()) {
+        return "";
+    }
+    namespace fs = std::filesystem;
+    const fs::path root = fs::path(exe).parent_path().parent_path();
+    for (const fs::path& candidate : {root / "share" / "outlog" / "bash-integration.sh",
+                                      root / "scripts" / "bash-integration.sh"}) {
+        if (access(candidate.c_str(), R_OK) == 0) {
+            return candidate.string();
+        }
+    }
+    return "";
+}
 
 static int g_master_fd = -1;
 
@@ -32,6 +89,7 @@ PtySession::~PtySession() {
 
 bool PtySession::start() {
     setenv("OUTLOG_ACTIVE", "1", 1);
+    const std::string integration_script = find_integration_script();
     child_pid_ = forkpty(&master_fd_, nullptr, nullptr, nullptr);
     
     if (child_pid_ < 0) {
@@ -42,11 +100,9 @@ bool PtySession::start() {
         std::string rc_path = "/tmp/outlog_bashrc_" + std::to_string(getpid());
         std::ofstream rc_file(rc_path);
         rc_file << "if [ -f ~/.bashrc ]; then source ~/.bashrc; fi\n";
-        rc_file << "if [ -f /usr/share/outlog/bash-integration.sh ]; then\n";
-        rc_file << "    source /usr/share/outlog/bash-integration.sh\n";
-        rc_file << "elif [ -f /Users/deepakrana/Desktop/outlog/scripts/bash-integration.sh ]; then\n";
-        rc_file << "    source /Users/deepakrana/Desktop/outlog/scripts/bash-integration.sh\n";
-        rc_file << "fi\n";
+        if (!integration_script.empty()) {
+            rc_file << "source " << shell_quote(integration_script) << "\n";
+        }
         rc_file << "rm -f " << rc_path << "\n"; // Self-cleanup
         rc_file.close();
 
@@ -92,6 +148,9 @@ void PtySession::interact(OnCommandFinished callback) {
     std::string current_cmd_output;
     bool truncated = false;
     const size_t MAX_OUTPUT_SIZE = 1024 * 1024; // 1 MB
+    std::string current_cwd;
+    std::chrono::system_clock::time_point started_at;
+    std::chrono::steady_clock::time_point started_tick;
 
     while (true) {
         if (poll(pfds, 2, -1) < 0) {
@@ -155,10 +214,13 @@ void PtySession::interact(OnCommandFinished callback) {
                     
                     // Parse the OSC payload
                     std::string payload = output_buffer.substr(osc_start + 14, osc_end - (osc_start + 14));
-                    if (payload == "Start") {
+                    if (payload.substr(0, 6) == "Start;") {
                         recording = true;
                         truncated = false;
                         current_cmd_output.clear();
+                        current_cwd = payload.substr(6);
+                        started_at = std::chrono::system_clock::now();
+                        started_tick = std::chrono::steady_clock::now();
                     } else if (payload.substr(0, 4) == "End;") {
                         recording = false;
                         
@@ -166,7 +228,13 @@ void PtySession::interact(OnCommandFinished callback) {
                             CommandRecord rec;
                             rec.output = current_cmd_output;
                             rec.truncated = truncated;
-                            
+                            rec.working_directory = current_cwd;
+                            rec.started_at = started_at;
+                            rec.finished_at = std::chrono::system_clock::now();
+                            rec.duration_ms = static_cast<int>(
+                                std::chrono::duration_cast<std::chrono::milliseconds>(
+                                    std::chrono::steady_clock::now() - started_tick).count());
+
                             size_t first_semi = payload.find(';', 4);
                             if (first_semi != std::string::npos) {
                                 rec.exit_code = std::stoi(payload.substr(4, first_semi - 4));

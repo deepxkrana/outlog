@@ -19,12 +19,15 @@
 namespace outlog {
 namespace cli {
 
-std::string get_current_time() {
-    auto now = std::chrono::system_clock::now();
-    auto in_time_t = std::chrono::system_clock::to_time_t(now);
+std::string format_time(std::chrono::system_clock::time_point time) {
+    auto in_time_t = std::chrono::system_clock::to_time_t(time);
     std::stringstream ss;
     ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d %H:%M:%S");
     return ss.str();
+}
+
+std::string get_current_time() {
+    return format_time(std::chrono::system_clock::now());
 }
 
 std::string get_working_dir() {
@@ -63,12 +66,21 @@ void enable_outlog() {
     std::string content((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
     in.close();
     
-    if (content.find("outlog shell") == std::string::npos) {
+    if (content.find("# Outlog integration") == std::string::npos) {
+        const std::string exe = outlog::pty::executable_path();
+        if (exe.empty()) {
+            std::cerr << "Can't determine the path of the outlog binary.\n";
+            return;
+        }
+        const std::string quoted_exe = outlog::pty::shell_quote(exe);
+
+        // OUTLOG_ACTIVE is set by `outlog shell` itself, which refuses to start
+        // if it's already set. If outlog fails to start, `&& exit` is skipped
+        // and the user keeps this normal bash.
         std::ofstream out(bashrc, std::ios::app);
         out << "\n# Outlog integration\n";
-        out << "if [ -z \"$OUTLOG_ACTIVE\" ] && [ -f ~/.config/outlog/enabled ]; then\n";
-        out << "    export OUTLOG_ACTIVE=1\n";
-        out << "    exec /Users/deepakrana/Desktop/outlog/build/outlog shell\n";
+        out << "if [[ $- == *i* ]] && [ -t 0 ] && [ -z \"$OUTLOG_ACTIVE\" ] && [ -f ~/.config/outlog/enabled ] && [ -x " << quoted_exe << " ]; then\n";
+        out << "    " << quoted_exe << " shell && exit\n";
         out << "fi\n";
     }
     std::cout << "outlog is now ENABLED. It will start automatically in new terminals.\n";
@@ -194,7 +206,9 @@ int parse_and_run(int argc, char* argv[], outlog::db::Database& db) {
         }
 
         outlog::pty::PtySession session;
-        if (session.start()) {
+        if (!session.start()) {
+            return 1;
+        } else {
             session.interact([&db](const outlog::pty::CommandRecord& rec) {
                 if (is_paused()) {
                     return; // Skip recording entirely
@@ -202,10 +216,10 @@ int parse_and_run(int argc, char* argv[], outlog::db::Database& db) {
                 
                 outlog::db::ExecutionRecord r;
                 r.command = rec.command;
-                r.working_directory = get_working_dir(); 
-                r.started_at = get_current_time();
-                r.finished_at = get_current_time();
-                r.duration_ms = 0; 
+                r.working_directory = rec.working_directory;
+                r.started_at = format_time(rec.started_at);
+                r.finished_at = format_time(rec.finished_at);
+                r.duration_ms = rec.duration_ms;
                 r.exit_code = rec.exit_code;
                 r.shell = "bash";
                 

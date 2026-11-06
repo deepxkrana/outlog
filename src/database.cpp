@@ -19,6 +19,9 @@ bool Database::initialize() {
         return false;
     }
 
+    // Every open terminal writes to the same database file.
+    sqlite3_busy_timeout(db_, 2000);
+
     const char* schema = R"(
         CREATE TABLE IF NOT EXISTS executions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <chrono>
 #include <string>
 #include <functional>
 #include <sys/types.h>
@@ -12,7 +13,17 @@ struct CommandRecord {
     int exit_code;
     std::string output;
     bool truncated{false};
+    std::string working_directory;
+    std::chrono::system_clock::time_point started_at;
+    std::chrono::system_clock::time_point finished_at;
+    int duration_ms{0};
 };
+
+// Absolute path of the running outlog binary, or "" if it can't be determined.
+std::string executable_path();
+
+// Quotes a string so bash treats it as a single literal word.
+std::string shell_quote(const std::string& value);
 
 class PtySession {
 public:
